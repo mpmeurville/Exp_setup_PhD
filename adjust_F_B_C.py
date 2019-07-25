@@ -111,7 +111,7 @@ if main == 'Yes':
 		if val == False:
 			print ('F: ', cap.get(cv2.CAP_PROP_FOCUS),'     ', 'B: ',cap.get(cv2.CAP_PROP_BRIGHTNESS), '    ', 'C: ', cap.get(cv2.CAP_PROP_CONTRAST))
 			val = True
-
+			print ('Quit: hit Q. Change parameters: hit C.')
 		if cv2.waitKey(20) & 0xFF == ord('q'):
 
 			break
