@@ -28,7 +28,7 @@ import cv2
 import os
 from datetime import datetime, date, time, timedelta
 import time
-
+from adjust_F_B_C import adjust
 
 
 ### Parameters ###
@@ -135,54 +135,54 @@ t_int = datetime.now()
 
 while datetime.now() < finish_time:
 
-    # Capture frame-by-frame
-    ret_v, frame_v = cap_v.read()
+	# Capture frame-by-frame
+	ret_v, frame_v = cap_v.read()
 
-    if (ret_v):
-	# The frame is in grays
-	frame_v = cv2.cvtColor(frame_v,cv2.COLOR_BGR2GRAY)
+	if (ret_v):
+		# The frame is in grays
+		frame_v = cv2.cvtColor(frame_v,cv2.COLOR_BGR2GRAY)
 
-	# Adding the time on each frame
+		# Adding the time on each frame
 
-	cv2.putText(frame_v,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_v , font, fontsize ,(255,255,255),2) 
+		cv2.putText(frame_v,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_v , font, fontsize ,(255,255,255),2) 
 
-        # Display the resulting frame
-        cv2.imshow('Video', frame_v)
-    out.write(frame_v)
+		# Display the resulting frame
+		cv2.imshow('Video', frame_v)
+	out.write(frame_v)
 
-    if datetime.now() >= t_int:
-	# Call the camera device 1.
-	cap_c = cv2.VideoCapture(1)
+	if datetime.now() >= t_int:
+		# Call the camera device 1.
+		cap_c = cv2.VideoCapture(1)
 
-	# Define the resolution we want for the pictures.
-	cap_c.set(3, width) # capture
-	cap_c.set(4, height) # capture
+		# Define the resolution we want for the pictures.
+		cap_c.set(3, width) # capture
+		cap_c.set(4, height) # capture
 
-	print ('Picture taken at: ' , datetime.now())
+		print ('Picture taken at: ' , datetime.now())
 
-        # Set the focus. If autofocus activated, prints the autofocus value
-	#cap_c.set(cv2.CAP_PROP_FOCUS,focus)
-	print (cap_c.get(cv2.CAP_PROP_FOCUS))
+        	# Set the focus. If autofocus activated, prints the autofocus value
+		#cap_c.set(cv2.CAP_PROP_FOCUS,focus)
+		print (cap_c.get(cv2.CAP_PROP_FOCUS))
 
-        # Capture frame-by-frame
-        ret_c, frame_c = cap_c.read()
-        cv2.putText(frame_c,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_c , font, fontsize ,(255,255,255),2) 
+        	# Capture frame-by-frame
+		ret_c, frame_c = cap_c.read()
+		cv2.putText(frame_c,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_c , font, fontsize ,(255,255,255),2) 
 
-        # Display the resulting frame
-	cv2.imshow('Pictures', frame_c)
+        	# Display the resulting frame
+		cv2.imshow('Pictures', frame_c)
 
-	# Define the picture name based on date and time
-	TIME_SAVE = datetime.now()
-	d = TIME_SAVE.strftime("%d-%m-%y_%H-%M-%S")
-	filename_capture = path_capture + d  + '.tiff'
+		# Define the picture name based on date and time
+		TIME_SAVE = datetime.now()
+		d = TIME_SAVE.strftime("%d-%m-%y_%H-%M-%S")
+		filename_capture = path_capture + d  + '.tiff'
 
-	# Save capture
-	cv2.imwrite(filename_capture, frame_c)
-	t_int = t_int + timedelta(seconds=interval)
-	cap_c.release()
+		# Save capture
+		cv2.imwrite(filename_capture, frame_c)
+		t_int = t_int + timedelta(seconds=interval)
+		cap_c.release()
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+	if cv2.waitKey(1) & 0xFF == ord('q'):
+		break
 
 # When everything is done, release the capture
 cap_v.release()

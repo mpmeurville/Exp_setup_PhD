@@ -27,7 +27,7 @@ print(d)
 
 frame_per_seconds = 15.0
 my_res = '720p'
-focus = 0.28 # Focus between 0 and 255, 5 by 5. 
+focus = 0.28 # Focus 
 seconds_duration = 30
 filename =  '/home/pi/setup/opencv-python/videos/' + d  + '.avi'
 
