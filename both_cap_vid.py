@@ -28,7 +28,6 @@ import cv2
 import os
 from datetime import datetime, date, time, timedelta
 import time
-from adjust_F_B_C import adjust
 
 
 ### Parameters ###
@@ -61,10 +60,21 @@ finish_time = NOW + timedelta(seconds=seconds_duration) # Do not touch
 interval = 10 # Time between captures, in seconds
 
 path_capture = '/home/pi/setup/opencv-python/pictures/' # Where to save the images
-focus = 0.28 # 0 means infinite
+#focus = 0.28 # 0 means infinite
 width = 1920 # Picture resolution
 height = 1080 # Picture resolution
 
+### Parameters collected from the F_B_C.txt file
+file = "/home/pi/setup/opencv-python/params/F_B_C.txt"
+f = open(file, "r")
+lines = f.readlines()[-2:]
+f.close()
+
+split1 = lines[0].strip().split(' ')
+split2 = lines[1].strip().split(' ')
+
+dev1, focus1, brightness1, contrast1 = split1
+dev2, focus2, brightness2, contrast2 = split2
 
 
 ### Functions definition ###
@@ -114,76 +124,156 @@ def get_video_type(filename):
         return VIDEO_TYPE['avi']
 
 
+if dev1 == "L" and dev2 == "U":
+    ### Video recording ###
 
-### Video recording ###
+    # Call the camera device 0.Default camera is used if 0. Otherwise, need 1 or 2.
+    cap_v = cv2.VideoCapture(0)
 
-# Call the camera device 0.Default camera is used if 0. Otherwise, need 1 or 2.
-cap_v = cv2.VideoCapture(0)
+    # Define video type we want
+    video_type_cv2 = get_video_type(filename_video)
 
-# Define video type we want
-video_type_cv2 = get_video_type(filename_video)
+    # Define the resolution we want to record
+    dims = get_dims(cap_v, my_res) # video
 
-# Define the resolution we want to record
-dims = get_dims(cap_v, my_res) # video
+    # Creation of the video file
+    out = cv2.VideoWriter(filename_video, video_type_cv2, frame_per_seconds, dims, isColor=False )
 
-# Creation of the video file
-out = cv2.VideoWriter(filename_video, video_type_cv2, frame_per_seconds, dims, isColor=False )
-
-# Creation of a counter that will define when pictures are taken.
-t_int = datetime.now()
+    # Creation of a counter that will define when pictures are taken.
+    t_int = datetime.now()
 
 
-while datetime.now() < finish_time:
+    while datetime.now() < finish_time:
 
-	# Capture frame-by-frame
-	ret_v, frame_v = cap_v.read()
+        # Capture frame-by-frame
+        ret_v, frame_v = cap_v.read()
 
-	if (ret_v):
-		# The frame is in grays
-		frame_v = cv2.cvtColor(frame_v,cv2.COLOR_BGR2GRAY)
+        if (ret_v):
+            # The frame is in grays
+            frame_v = cv2.cvtColor(frame_v,cv2.COLOR_BGR2GRAY)
 
-		# Adding the time on each frame
+            # Adding the time on each frame
 
-		cv2.putText(frame_v,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_v , font, fontsize ,(255,255,255),2) 
+            cv2.putText(frame_v,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_v , font, fontsize ,(255,255,255),2) 
 
-		# Display the resulting frame
-		cv2.imshow('Video', frame_v)
-	out.write(frame_v)
+            # Display the resulting frame
+            cv2.imshow('Video', frame_v)
+        out.write(frame_v)
 
-	if datetime.now() >= t_int:
-		# Call the camera device 1.
-		cap_c = cv2.VideoCapture(1)
+        if datetime.now() >= t_int:
+            # Call the camera device 1.
+            cap_c = cv2.VideoCapture(1)
 
-		# Define the resolution we want for the pictures.
-		cap_c.set(3, width) # capture
-		cap_c.set(4, height) # capture
+            # Define the resolution we want for the pictures.
+            cap_c.set(3, width) # capture
+            cap_c.set(4, height) # capture
 
-		print ('Picture taken at: ' , datetime.now())
+            print ('Picture taken at: ' , datetime.now())
 
-        	# Set the focus. If autofocus activated, prints the autofocus value
-		#cap_c.set(cv2.CAP_PROP_FOCUS,focus)
-		print (cap_c.get(cv2.CAP_PROP_FOCUS))
+                # Set the focus. If autofocus activated, prints the autofocus value
+            #cap_c.set(cv2.CAP_PROP_FOCUS,focus)
+            print (cap_c.get(cv2.CAP_PROP_FOCUS))
 
-        	# Capture frame-by-frame
-		ret_c, frame_c = cap_c.read()
-		cv2.putText(frame_c,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_c , font, fontsize ,(255,255,255),2) 
+                # Capture frame-by-frame
+            ret_c, frame_c = cap_c.read()
+            cv2.putText(frame_c,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_c , font, fontsize ,(255,255,255),2) 
 
-        	# Display the resulting frame
-		cv2.imshow('Pictures', frame_c)
+                # Display the resulting frame
+            cv2.imshow('Pictures', frame_c)
 
-		# Define the picture name based on date and time
-		TIME_SAVE = datetime.now()
-		d = TIME_SAVE.strftime("%d-%m-%y_%H-%M-%S")
-		filename_capture = path_capture + d  + '.tiff'
+            # Define the picture name based on date and time
+            TIME_SAVE = datetime.now()
+            d = TIME_SAVE.strftime("%d-%m-%y_%H-%M-%S")
+            filename_capture = path_capture + d  + '.tiff'
 
-		# Save capture
-		cv2.imwrite(filename_capture, frame_c)
-		t_int = t_int + timedelta(seconds=interval)
-		cap_c.release()
+            # Save capture
+            cv2.imwrite(filename_capture, frame_c)
+            t_int = t_int + timedelta(seconds=interval)
+            cap_c.release()
 
-	if cv2.waitKey(1) & 0xFF == ord('q'):
-		break
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-# When everything is done, release the capture
-cap_v.release()
-cv2.destroyAllWindows()
+    # When everything is done, release the capture
+    cap_v.release()
+    cv2.destroyAllWindows()
+
+
+
+if dev1 == "U" and dev2 == "L":
+    ### Video recording ###
+
+    # Call the camera device 0.Default camera is used if 0. Otherwise, need 1 or 2.
+    cap_v = cv2.VideoCapture(1)
+
+    # Define video type we want
+    video_type_cv2 = get_video_type(filename_video)
+
+    # Define the resolution we want to record
+    dims = get_dims(cap_v, my_res) # video
+
+    # Creation of the video file
+    out = cv2.VideoWriter(filename_video, video_type_cv2, frame_per_seconds, dims, isColor=False )
+
+    # Creation of a counter that will define when pictures are taken.
+    t_int = datetime.now()
+
+
+    while datetime.now() < finish_time:
+
+        # Capture frame-by-frame
+        ret_v, frame_v = cap_v.read()
+
+        if (ret_v):
+            # The frame is in grays
+            frame_v = cv2.cvtColor(frame_v,cv2.COLOR_BGR2GRAY)
+
+            # Adding the time on each frame
+
+            cv2.putText(frame_v,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_v , font, fontsize ,(255,255,255),2) 
+
+            # Display the resulting frame
+            cv2.imshow('Video', frame_v)
+        out.write(frame_v)
+
+        if datetime.now() >= t_int:
+            # Call the camera device 1.
+            cap_c = cv2.VideoCapture(0)
+
+            # Define the resolution we want for the pictures.
+            cap_c.set(3, width) # capture
+            cap_c.set(4, height) # capture
+
+            print ('Picture taken at: ' , datetime.now())
+
+                # Set the focus. If autofocus activated, prints the autofocus value
+            #cap_c.set(cv2.CAP_PROP_FOCUS,focus)
+            print (cap_c.get(cv2.CAP_PROP_FOCUS))
+
+                # Capture frame-by-frame
+            ret_c, frame_c = cap_c.read()
+            cv2.putText(frame_c,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_c , font, fontsize ,(255,255,255),2) 
+
+                # Display the resulting frame
+            cv2.imshow('Pictures', frame_c)
+
+            # Define the picture name based on date and time
+            TIME_SAVE = datetime.now()
+            d = TIME_SAVE.strftime("%d-%m-%y_%H-%M-%S")
+            filename_capture = path_capture + d  + '.tiff'
+
+            # Save capture
+            cv2.imwrite(filename_capture, frame_c)
+            t_int = t_int + timedelta(seconds=interval)
+            cap_c.release()
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    # When everything is done, release the capture
+    cap_v.release()
+    cv2.destroyAllWindows()
+    
+    
+#else:
+#    print("Problem!")

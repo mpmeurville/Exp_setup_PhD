@@ -2,7 +2,10 @@ from adjust_F_B_C import adjust
 from vid_cap_func import vid_cap
 import cv2
 import numpy as np
+import os
 
+
+os.remove("/home/pi/setup/opencv-python/params/F_B_C.txt")
 
 pos = False
 # Create a VideoCapture object and read from input file
@@ -30,7 +33,7 @@ while(cap.isOpened()):
       break
     
 if pos == False:
-    p = input ("Is it LOWER or UPPER cam?    ")
+    p = input ("Is it L(OWER) or U(PPER) cam?    ")
     pos = True
 
 # When everything done, release the video capture object

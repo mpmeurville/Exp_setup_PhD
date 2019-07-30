@@ -44,7 +44,7 @@ def Auto(p, cam_device, width = 1920, height = 1080): # Never give pos a value!
             if res == "Y":
                 print('EXIT')
                 file = open ('/home/pi/setup/opencv-python/params/F_B_C.txt', "a+")
-                file.write("%s: %f %f %f\n" %(p,f,b,c))
+                file.write("%s %f %f %f\n" %(p,f,b,c))
                 file.close()
                 cap.release()
                 cv2.destroyAllWindows()
@@ -108,7 +108,7 @@ def Default(p, cam_device, width = 1920, height = 1080):
             if res == "Y":
                 print('EXIT')
                 file = open ('/home/pi/setup/opencv-python/params/F_B_C.txt', "a+")
-                file.write("%s: %f %f %f\n" %(p,f,b,c))
+                file.write("%s %f %f %f\n" %(p,f,b,c))
                 file.close()
                 cap.release()
                 cv2.destroyAllWindows()
@@ -161,14 +161,14 @@ def User_params(p, cam_device, width = 1920, height = 1080):
         if val == False:
             print ('F: ', cap.get(cv2.CAP_PROP_FOCUS),'     ', 'B: ',cap.get(cv2.CAP_PROP_BRIGHTNESS), '    ', 'C: ', cap.get(cv2.CAP_PROP_CONTRAST))     
             val = True
-            print ('Quit: hit Q. Change parameters: hit C.')
+            print ('Quit: hit Q. Change parameter hit C.')
 
 
 
         if cv2.waitKey(20) & 0xFF == ord('q'):
             print('EXIT')
             file = open ('/home/pi/setup/opencv-python/params/F_B_C.txt', "a+")
-            file.write("%s: %f %f %f\n" %(p,f,b,c))
+            file.write("%s %f %f %f\n" %(p,f,b,c))
             file.close()
             
             break
@@ -190,7 +190,7 @@ def User_params(p, cam_device, width = 1920, height = 1080):
 def adjust(p, cam_device, path, width = 1920, height = 1080):
 
     main = input ('Do you want to set parameters? (Yes, Default, Auto) :    ') # When python3, change to input
-
+    
 
     if main == 'Auto':
 
