@@ -32,16 +32,12 @@ import time
 
 ### Parameters ###
                         # VIDEO -> PiCAM
-NOW = datetime.now() # Do not touch
-d=NOW.strftime("%d-%m-%y_%H-%M-%S") # Do not touch
-
-frame_per_seconds = 24.0 # Can be changed. Can slow the device
-
-my_res = '720p' # Can be either 480p, 720p, 1080p or 4K, depends on what you want (higher = slower!) and on the device. 
-
-seconds_duration = 120 # Time over which the video will be recorded
-
-filename_video =  '/home/pi/setup/opencv-python/videos/' + d  + '.avi' # name of the file. Extension matters here!
+#NOW = datetime.now() # Do not touch
+#d=NOW.strftime("%d-%m-%y_%H-%M-%S") # Do not touch
+#frame_per_seconds = 24.0 # Can be changed. Can slow the device
+#my_res = '720p' # Can be either 480p, 720p, 1080p or 4K, depends on what you want (higher = slower!) and on the device. 
+#seconds_duration = 120 # Time over which the video will be recorded
+#filename_video =  '/media/pi/My Passport/video' + d  + '.avi' # name of the file. Extension matters here!
 
 
 # Timestamp on both videos and pictures: Now it is set to have it bottom-left -> Do not touch or I eat you!
@@ -50,32 +46,15 @@ position_v = (1,700) # Position at which the writting has to start
 position_c = (1,1000)
 fontsize = 0.5
 
-
-
-finish_time = NOW + timedelta(seconds=seconds_duration) # Do not touch
-
-
+#finish_time = NOW + timedelta(seconds=seconds_duration) # Do not touch
 
                         # CAPTURE -> WEBCAM
-interval = 10 # Time between captures, in seconds
+#interval = 10 # Time between captures, in seconds
 
-path_capture = '/home/pi/setup/opencv-python/pictures/' # Where to save the images
+#path_capture = '/media/pi/My Passport/pictures/' # Where to save the images
 #focus = 0.28 # 0 means infinite
-width = 1920 # Picture resolution
-height = 1080 # Picture resolution
-
-### Parameters collected from the F_B_C.txt file
-file = "/home/pi/setup/opencv-python/params/F_B_C.txt"
-f = open(file, "r")
-lines = f.readlines()[-2:]
-f.close()
-
-split1 = lines[0].strip().split(' ')
-split2 = lines[1].strip().split(' ')
-
-dev1, focus1, brightness1, contrast1 = split1
-dev2, focus2, brightness2, contrast2 = split2
-
+#width = 1920 # Picture resolution
+#height = 1080 # Picture resolution
 
 ### Functions definition ###
 
@@ -124,87 +103,45 @@ def get_video_type(filename):
         return VIDEO_TYPE['avi']
 
 
-if dev1 == "L" and dev2 == "U":
-    ### Video recording ###
+def get_cap_vid( NOW, seconds_duration, interval, path_capture, filename_video, percent, file_params = "/media/pi/My Passport/params/F_B_C.txt", my_res = '720p', width = 1920, height = 1080 ,frame_per_seconds = 24.0):
+    
+    finish_time = NOW + timedelta(seconds=seconds_duration) # Do not touch
+    
 
-    # Call the camera device 0.Default camera is used if 0. Otherwise, need 1 or 2.
-    cap_v = cv2.VideoCapture(0)
+    ### Parameters collected from the F_B_C.txt file
+        # Extract parameters from previous settings
+    
+    f = open(file_params, "r") # Get parameters that we recorded in the F_B_C.txt file
+    lines = f.readlines()[-2:]
+    f.close()
 
-    # Define video type we want
-    video_type_cv2 = get_video_type(filename_video)
+    split1 = lines[0].strip().split(' ')
+    split2 = lines[1].strip().split(' ')
 
-    # Define the resolution we want to record
-    dims = get_dims(cap_v, my_res) # video
+    position1, dev1, focus1, brightness1, contrast1 = split1
+    position2, dev2, focus2, brightness2, contrast2 = split2
 
-    # Creation of the video file
-    out = cv2.VideoWriter(filename_video, video_type_cv2, frame_per_seconds, dims, isColor=False )
+    dev1 = int(dev1)
+    dev2 = int(dev2)
+    focus1 = float(focus1)
+    focus2 = float(focus2)
+    brightness1 = float(brightness1)
+    brightness2 = float(brightness2)
+    contrast1 = float(contrast1)
+    contrast2 = float(contrast2)
+    
 
-    # Creation of a counter that will define when pictures are taken.
-    t_int = datetime.now()
+    params1 = [position1, dev1, focus1, brightness1, contrast1]
+    params2 = [position2, dev2, focus2, brightness2, contrast2]
+    
+    if position1 == "U":
+        video = params1
+        
+    elif position2 == "U":
+        video = params2
+        #print(params2)
 
-
-    while datetime.now() < finish_time:
-
-        # Capture frame-by-frame
-        ret_v, frame_v = cap_v.read()
-
-        if (ret_v):
-            # The frame is in grays
-            frame_v = cv2.cvtColor(frame_v,cv2.COLOR_BGR2GRAY)
-
-            # Adding the time on each frame
-
-            cv2.putText(frame_v,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_v , font, fontsize ,(255,255,255),2) 
-
-            # Display the resulting frame
-            cv2.imshow('Video', frame_v)
-        out.write(frame_v)
-
-        if datetime.now() >= t_int:
-            # Call the camera device 1.
-            cap_c = cv2.VideoCapture(1)
-
-            # Define the resolution we want for the pictures.
-            cap_c.set(3, width) # capture
-            cap_c.set(4, height) # capture
-
-            print ('Picture taken at: ' , datetime.now())
-
-                # Set the focus. If autofocus activated, prints the autofocus value
-            #cap_c.set(cv2.CAP_PROP_FOCUS,focus)
-            print (cap_c.get(cv2.CAP_PROP_FOCUS))
-
-                # Capture frame-by-frame
-            ret_c, frame_c = cap_c.read()
-            cv2.putText(frame_c,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_c , font, fontsize ,(255,255,255),2) 
-
-                # Display the resulting frame
-            cv2.imshow('Pictures', frame_c)
-
-            # Define the picture name based on date and time
-            TIME_SAVE = datetime.now()
-            d = TIME_SAVE.strftime("%d-%m-%y_%H-%M-%S")
-            filename_capture = path_capture + d  + '.tiff'
-
-            # Save capture
-            cv2.imwrite(filename_capture, frame_c)
-            t_int = t_int + timedelta(seconds=interval)
-            cap_c.release()
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    # When everything is done, release the capture
-    cap_v.release()
-    cv2.destroyAllWindows()
-
-
-
-if dev1 == "U" and dev2 == "L":
-    ### Video recording ###
-
-    # Call the camera device 0.Default camera is used if 0. Otherwise, need 1 or 2.
-    cap_v = cv2.VideoCapture(1)
+    cap_v = cv2.VideoCapture(video[1])
 
     # Define video type we want
     video_type_cv2 = get_video_type(filename_video)
@@ -221,34 +158,68 @@ if dev1 == "U" and dev2 == "L":
 
     while datetime.now() < finish_time:
 
+
         # Capture frame-by-frame
         ret_v, frame_v = cap_v.read()
+        
+        # Set focus, brightness, contrast
+        
+        try:
+            cap_v.set(cv2.CAP_PROP_FOCUS, video[2])
+    
+        except OSError:
+            pass 
+
+        cap_v.set(cv2.CAP_PROP_BRIGHTNESS, video[3])
+        cap_v.set(cv2.CAP_PROP_CONTRAST, video[4])
+        
 
         if (ret_v):
             # The frame is in grays
             frame_v = cv2.cvtColor(frame_v,cv2.COLOR_BGR2GRAY)
-
+            
+            
             # Adding the time on each frame
 
             cv2.putText(frame_v,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_v , font, fontsize ,(255,255,255),2) 
 
             # Display the resulting frame
             cv2.imshow('Video', frame_v)
+            
         out.write(frame_v)
 
         if datetime.now() >= t_int:
             # Call the camera device 1.
-            cap_c = cv2.VideoCapture(0)
-
+            
+            if position1 == "L":
+                capture = params1
+            
+            elif position2 == "L":
+                capture = params2
+                
+                
+            cap_c = cv2.VideoCapture(capture[1])
             # Define the resolution we want for the pictures.
             cap_c.set(3, width) # capture
             cap_c.set(4, height) # capture
 
             print ('Picture taken at: ' , datetime.now())
 
-                # Set the focus. If autofocus activated, prints the autofocus value
-            #cap_c.set(cv2.CAP_PROP_FOCUS,focus)
-            print (cap_c.get(cv2.CAP_PROP_FOCUS))
+                    # Set focus, brightness, contrast
+                    
+            try:
+                cap_c.set(cv2.CAP_PROP_FOCUS, capture[2])
+    
+            except OSError:
+                pass 
+                
+            cap_c.set(cv2.CAP_PROP_BRIGHTNESS, capture[3])
+            cap_c.set(cv2.CAP_PROP_CONTRAST, capture[4])
+            
+            print (cap_v.get(cv2.CAP_PROP_FOCUS), " " , cap_v.get(cv2.CAP_PROP_BRIGHTNESS), " ", cap_v.get(cv2.CAP_PROP_CONTRAST))
+
+
+            print (cap_c.get(cv2.CAP_PROP_FOCUS), " " , cap_c.get(cv2.CAP_PROP_BRIGHTNESS), " ", cap_c.get(cv2.CAP_PROP_CONTRAST))
 
                 # Capture frame-by-frame
             ret_c, frame_c = cap_c.read()

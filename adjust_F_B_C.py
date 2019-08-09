@@ -13,13 +13,21 @@ import os
 #This script contains a function that is called when  using our devices.
 
 
-def Auto(p, cam_device, width = 1920, height = 1080): # Never give pos a value!
+def Auto(dev, path, p, width = 1920, height = 1080): # Never give pos a value!
+
+    path_to_params = "%s/params/F_B_C.txt" %(path)
+
     val = False
-    cap  = cv2.VideoCapture(cam_device)
+    cap  = cv2.VideoCapture(dev)
 
     cap.set(3, width)
     cap.set(4, height)
     
+    try:
+        cap.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+    
+    except OSError:
+        pass 
 
 
     if not cap.isOpened():
@@ -32,6 +40,7 @@ def Auto(p, cam_device, width = 1920, height = 1080): # Never give pos a value!
         f = cap.get(cv2.CAP_PROP_FOCUS)
         b = cap.get(cv2.CAP_PROP_BRIGHTNESS)
         c = cap.get(cv2.CAP_PROP_CONTRAST)
+        
 
         if val == False:
             print ('F: ', cap.get(cv2.CAP_PROP_FOCUS),'     ', 'B: ',cap.get(cv2.CAP_PROP_BRIGHTNESS), '    ', 'C: ', cap.get(cv2.CAP_PROP_CONTRAST))
@@ -43,8 +52,8 @@ def Auto(p, cam_device, width = 1920, height = 1080): # Never give pos a value!
     
             if res == "Y":
                 print('EXIT')
-                file = open ('/home/pi/setup/opencv-python/params/F_B_C.txt', "a+")
-                file.write("%s %f %f %f\n" %(p,f,b,c))
+                file = open (path_to_params , "a+")
+                file.write("%s %i %f %f %f\n" %(p, dev,f,b,c))
                 file.close()
                 cap.release()
                 cv2.destroyAllWindows()
@@ -55,12 +64,14 @@ def Auto(p, cam_device, width = 1920, height = 1080): # Never give pos a value!
                 cap.release()
                 cv2.destroyAllWindows()
                 
-                User_params(p, cam_device, width, height)
+                User_params(dev, path, p, width, height)
                 
 
     cv2.destroyAllWindows()
     
-def Default(p, cam_device, width = 1920, height = 1080):
+def Default(dev, path, p, width = 1920, height = 1080):
+    
+    path_to_params = "%s/params/F_B_C.txt" %(path)
 
     # Default parameters
     f = 0.32
@@ -69,7 +80,7 @@ def Default(p, cam_device, width = 1920, height = 1080):
 
     val = False
     
-    cap  = cv2.VideoCapture(cam_device)
+    cap  = cv2.VideoCapture(dev)
 
     cap.set(3, width)
     cap.set(4, height)
@@ -91,7 +102,12 @@ def Default(p, cam_device, width = 1920, height = 1080):
         cv2.imshow('Default Settings', frame)
         
         
-        f = cap.get(cv2.CAP_PROP_FOCUS)
+        try:
+            cap.set(cv2.CAP_PROP_FOCUS, f)
+    
+        except OSError:
+            pass
+        
         b = cap.get(cv2.CAP_PROP_BRIGHTNESS)
         c = cap.get(cv2.CAP_PROP_CONTRAST)
 
@@ -107,8 +123,8 @@ def Default(p, cam_device, width = 1920, height = 1080):
     
             if res == "Y":
                 print('EXIT')
-                file = open ('/home/pi/setup/opencv-python/params/F_B_C.txt', "a+")
-                file.write("%s %f %f %f\n" %(p,f,b,c))
+                file = open (path_to_params , "a+")
+                file.write("%s %i %f %f %f\n" %(p, dev,f,b,c))
                 file.close()
                 cap.release()
                 cv2.destroyAllWindows()
@@ -119,13 +135,15 @@ def Default(p, cam_device, width = 1920, height = 1080):
                 cap.release()
                 cv2.destroyAllWindows()
                 
-                User_params(p, cam_device, width, height)
+                User_params(dev, path, p, width, height)
                 
 
     cv2.destroyAllWindows()
     
 
-def User_params(p, cam_device, width = 1920, height = 1080):
+def User_params(dev, path, p, width = 1920, height = 1080):
+    
+    path_to_params = "%s/params/F_B_C.txt" %(path)
 
     val = False
 
@@ -137,7 +155,7 @@ def User_params(p, cam_device, width = 1920, height = 1080):
     b = float(b)
     c = float(c)
 
-    cap  = cv2.VideoCapture(cam_device)
+    cap  = cv2.VideoCapture(dev)
 
     cap.set(3, width)
     cap.set(4, height)
@@ -151,7 +169,12 @@ def User_params(p, cam_device, width = 1920, height = 1080):
 
         ret, frame = cap.read()
 
-        cap.set(cv2.CAP_PROP_FOCUS, f)
+        try:
+            cap.set(cv2.CAP_PROP_FOCUS, f)
+    
+        except OSError:
+            pass 
+
         cap.set(cv2.CAP_PROP_BRIGHTNESS, b)
         cap.set(cv2.CAP_PROP_CONTRAST, c)
 
@@ -161,24 +184,35 @@ def User_params(p, cam_device, width = 1920, height = 1080):
         if val == False:
             print ('F: ', cap.get(cv2.CAP_PROP_FOCUS),'     ', 'B: ',cap.get(cv2.CAP_PROP_BRIGHTNESS), '    ', 'C: ', cap.get(cv2.CAP_PROP_CONTRAST))     
             val = True
-            print ('Quit: hit Q. Change parameter hit C.')
-
-
+            #print ('Quit: hit Q. Change parameter hit C.')
 
         if cv2.waitKey(20) & 0xFF == ord('q'):
-            print('EXIT')
-            file = open ('/home/pi/setup/opencv-python/params/F_B_C.txt', "a+")
-            file.write("%s %f %f %f\n" %(p,f,b,c))
-            file.close()
+       
+            res = input ("Are you happy with the result? (Y,N):     ")
+    
+            if res == "Y":
+                print('EXIT')
+                file = open (path_to_params, "a+")
+                file.write("%s %i %f %f %f\n" %(p, dev,f,b,c))
+                file.close()
+                cap.release()
+                cv2.destroyAllWindows()
+                
+                break
             
-            break
+            if res == 'N':
+                cap.release()
+                cv2.destroyAllWindows()
+
+                User_params(dev, path, p, width, height)
+    
         
 
         elif cv2.waitKey(200) & 0xFF == ord('c'):
             cap.release()
             cv2.destroyAllWindows()
 
-            User_params(p, cam_device, width, height)
+            User_params(dev, path, p,  width, height)
             
 
 
@@ -187,27 +221,27 @@ def User_params(p, cam_device, width = 1920, height = 1080):
     cv2.destroyAllWindows()
     
     
-def adjust(p, cam_device, path, width = 1920, height = 1080):
+def adjust(dev, p, path, width = 1920, height = 1080):
 
-    main = input ('Do you want to set parameters? (Yes, Default, Auto) :    ') # When python3, change to input
+    main = input ('Do you want to set parameters? (Y(es), D(efault), A(uto) ) :    ') # When python3, change to input
     
 
-    if main == 'Auto':
+    if main == 'A':
 
-        Auto(p, cam_device, width, height)
-        print("Exit")
-
-    cv2.destroyAllWindows()
-
-    if main == 'Default':
-
-        Default(p, cam_device, width, height)
+        Auto(dev, path, p, width, height)
+        #print("Exit")
 
     cv2.destroyAllWindows()
 
-    if main == 'Yes':
+    if main == 'D':
 
-        User_params(p, cam_device, width, height)
+        Default(dev, path, p, width, height)
+
+    cv2.destroyAllWindows()
+
+    if main == 'Y':
+
+        User_params(dev, path, p, width, height)
 
     cv2.destroyAllWindows()
 
