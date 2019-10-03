@@ -13,7 +13,7 @@ import os
 #This script contains a function that is called when  using our devices.
 
 
-def Auto(dev, path, p, width = 1920, height = 1080): # Never give pos a value!
+def Auto(dev, path, p, width = 1280, height = 720): # Never give pos a value!
 
     path_to_params = "%s/params/F_B_C.txt" %(path)
 
@@ -34,7 +34,13 @@ def Auto(dev, path, p, width = 1920, height = 1080): # Never give pos a value!
         raise Exception("Could not open video device")
 
     while (cap):
+        
+        
         ret, frame = cap.read()
+        
+        if p == "U":
+            frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+        
         cv2.imshow('Auto Settings', frame)
             
         f = cap.get(cv2.CAP_PROP_FOCUS)
@@ -55,6 +61,8 @@ def Auto(dev, path, p, width = 1920, height = 1080): # Never give pos a value!
                 file = open (path_to_params , "a+")
                 file.write("%s %i %f %f %f\n" %(p, dev,f,b,c))
                 file.close()
+                print( "Parameters saved at %s" %(path_to_params))
+
                 cap.release()
                 cv2.destroyAllWindows()
                 
@@ -69,14 +77,14 @@ def Auto(dev, path, p, width = 1920, height = 1080): # Never give pos a value!
 
     cv2.destroyAllWindows()
     
-def Default(dev, path, p, width = 1920, height = 1080):
+def Default(dev, path, p, width = 1280, height = 720):
     
     path_to_params = "%s/params/F_B_C.txt" %(path)
 
     # Default parameters
-    f = 0.32
+    f = 0.7
     b = 0.7
-    c = 0.5
+    c = 0.7
 
     val = False
     
@@ -98,6 +106,9 @@ def Default(dev, path, p, width = 1920, height = 1080):
         cap.set(cv2.CAP_PROP_FOCUS,f)
         cap.set(cv2.CAP_PROP_BRIGHTNESS, b)
         cap.set(cv2.CAP_PROP_CONTRAST,c)
+
+        if p == "U":
+            frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
 
         cv2.imshow('Default Settings', frame)
         
@@ -126,6 +137,8 @@ def Default(dev, path, p, width = 1920, height = 1080):
                 file = open (path_to_params , "a+")
                 file.write("%s %i %f %f %f\n" %(p, dev,f,b,c))
                 file.close()
+                print( "Parameters saved at %s" %(path_to_params))
+
                 cap.release()
                 cv2.destroyAllWindows()
 
@@ -141,7 +154,7 @@ def Default(dev, path, p, width = 1920, height = 1080):
     cv2.destroyAllWindows()
     
 
-def User_params(dev, path, p, width = 1920, height = 1080):
+def User_params(dev, path, p, width = 1280, height = 720):
     
     path_to_params = "%s/params/F_B_C.txt" %(path)
 
@@ -178,6 +191,9 @@ def User_params(dev, path, p, width = 1920, height = 1080):
         cap.set(cv2.CAP_PROP_BRIGHTNESS, b)
         cap.set(cv2.CAP_PROP_CONTRAST, c)
 
+        #if p == "U":
+        #    frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+            
         cv2.imshow('User Settings', frame)
             
 
@@ -186,7 +202,7 @@ def User_params(dev, path, p, width = 1920, height = 1080):
             val = True
             #print ('Quit: hit Q. Change parameter hit C.')
 
-        if cv2.waitKey(20) & 0xFF == ord('q'):
+        elif cv2.waitKey(0) & 0xFF == ord('q'):
        
             res = input ("Are you happy with the result? (Y,N):     ")
     
@@ -195,8 +211,10 @@ def User_params(dev, path, p, width = 1920, height = 1080):
                 file = open (path_to_params, "a+")
                 file.write("%s %i %f %f %f\n" %(p, dev,f,b,c))
                 file.close()
-                cap.release()
-                cv2.destroyAllWindows()
+                print( "Parameters saved at %s" %(path_to_params))
+
+                #cap.release()
+                #cv2.destroyAllWindows()
                 
                 break
             
@@ -208,7 +226,7 @@ def User_params(dev, path, p, width = 1920, height = 1080):
     
         
 
-        elif cv2.waitKey(200) & 0xFF == ord('c'):
+        elif cv2.waitKey(0) & 0xFF == ord('c'):
             cap.release()
             cv2.destroyAllWindows()
 

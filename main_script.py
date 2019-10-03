@@ -117,16 +117,28 @@ if next1 == "Y":
     # RECORD
     s = input("How long in s?    ")
     i = input("Interval in s?    ")
+    foo = input ("What folder name?    ")
     
     s = int(s)
     i = int(i)
 
+
+    if not os.path.exists("/media/pi/My Passport/%s" %(foo)):
+        os.mkdir("/media/pi/My Passport/%s" %(foo))
+        os.mkdir("/media/pi/My Passport/%s/videos" %(foo))
+        os.mkdir("/media/pi/My Passport/%s/pictures" %(foo))
+
+
     N = datetime.now() # Do not touch
     d=N.strftime("%d-%m-%y_%H-%M-%S") # Do not touch
 
+# CREATE folders architecture. 
 
-    f_video =  '/media/pi/My Passport/video/' + d  + '.avi' # name of the file. Extension matters here! Will have to be ,odified / put in a loop for updating d.
-    p_capture = '/media/pi/My Passport/pictures/'
+    f_video =  '/media/pi/My Passport/' + foo +'/video/' + d  + '.avi' # name of the file. Extension matters here! Will have to be ,odified / put in a loop for updating d.
+    p_capture = '/media/pi/My Passport/' + foo + '/picture/'
+
+    print(f_video)
+    print(p_capture)
 
 
     get_cap_vid(NOW = N, seconds_duration = s, interval = i, path_capture = p_capture, filename_video = f_video, percent = 30, file_params = "/media/pi/My Passport/params/F_B_C.txt", my_res = '720p', width = 1920, height = 1080 ,frame_per_seconds = 24.0)
