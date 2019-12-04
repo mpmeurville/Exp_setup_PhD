@@ -90,41 +90,39 @@ def rescale_frame(frame, percent=75):
 
 # Video encoding, might require additional installs
 ## fourcc.org/codecs to see what types of video formats are available for my system
-VIDEO_TYPE =  {
-        'avi': cv2.VideoWriter_fourcc(*'XVID'),
-        'mp4': cv2.VideoWriter_fourcc(*'XVID'),
-}
+#VIDEO_TYPE =  {
+#        'avi': cv2.VideoWriter_fourcc(*'XVID'),
+#        'mp4': cv2.VideoWriter_fourcc(*'XVID'),
+#}
 
 
-def get_video_type(filename):
-        filename, ext = os.path.splitext(filename) # We define the video type we want by giving the extension
-        if ext in VIDEO_TYPE:
-                return VIDEO_TYPE[ext]
-        return VIDEO_TYPE['avi']
+#def get_video_type(filename):
+#        filename, ext = os.path.splitext(filename) # We define the video type we want by giving the extension
+#        if ext in VIDEO_TYPE:
+#                return VIDEO_TYPE[ext]
+#        return VIDEO_TYPE['avi']
 
 
 def get_cap_vid( NOW, seconds_duration, interval, path_capture, filename_video, percent, file_params = "/media/pi/My Passport/params/F_B_C.txt", my_res = '720p', width = 1920, height = 1080 ,frame_per_seconds = 24.0):
     
     finish_time = NOW + timedelta(seconds=seconds_duration) # Do not touch
     
-
     ### Parameters collected from the F_B_C.txt file
         # Extract parameters from previous settings
     
     f = open(file_params, "r") # Get parameters that we recorded in the F_B_C.txt file
     lines = f.readlines()[-2:]
     f.close()
-
     split1 = lines[0].strip().split(' ')
     split2 = lines[1].strip().split(' ')
-
     position1, dev1, focus1, brightness1, contrast1 = split1
     position2, dev2, focus2, brightness2, contrast2 = split2
-
+    
     dev1 = int(dev1)
     dev2 = int(dev2)
     focus1 = float(focus1)
     focus2 = float(focus2)
+
     brightness1 = float(brightness1)
     brightness2 = float(brightness2)
     contrast1 = float(contrast1)
@@ -142,57 +140,53 @@ def get_cap_vid( NOW, seconds_duration, interval, path_capture, filename_video, 
         #print(params2)
 
     cap_v = cv2.VideoCapture(video[1])
-
+    
     # Define video type we want
-    video_type_cv2 = get_video_type(filename_video)
+    #video_type_cv2 = get_video_type(filename_video)
 
     # Define the resolution we want to record
     dims = get_dims(cap_v, my_res) # video
-
+    
     # Creation of the video file
-    out = cv2.VideoWriter(filename_video, video_type_cv2, frame_per_seconds, dims, isColor=False )
-
-    # Creation of a counter that will define when pictures are taken.
+    out = cv2.VideoWriter(filename_video, cv2.VideoWriter_fourcc(*'XVID'), frame_per_seconds, dims, isColor=False )
+    print(filename_video)
+    print(cv2.VideoWriter_fourcc(*'XVID'))
+    print(frame_per_seconds)
+    print(dims)
+   
+   # Creation of a counter that will define when pictures are taken.
     t_int = datetime.now()
-
 
     while datetime.now() < finish_time:
 
 
         # Capture frame-by-frame
         ret_v, frame_v = cap_v.read()
-        
         # Set focus, brightness, contrast
         
-        try:
-            cap_v.set(cv2.CAP_PROP_FOCUS, video[2])
-    
-        except OSError:
-            pass 
-
+        cap_v.set(cv2.CAP_PROP_FOCUS, video[2]) # This line creates the VIDIOC_S_CTRL incomplete multibyte error.
         cap_v.set(cv2.CAP_PROP_BRIGHTNESS, video[3])
         cap_v.set(cv2.CAP_PROP_CONTRAST, video[4])
-        
 
         if (ret_v):
+
             # The frame is in grays
             frame_v = cv2.cvtColor(frame_v,cv2.COLOR_BGR2GRAY)
-            
             
             # Adding the time on each frame
 
             cv2.putText(frame_v,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_v , font, fontsize ,(255,255,255),2) 
-
             # Display the resulting frame
             cv2.imshow('Video', frame_v)
             
-        out.write(frame_v)
+            out.write(frame_v)
 
         if datetime.now() >= t_int:
             # Call the camera device 1.
             
             if position1 == "L":
                 capture = params1
+                
             
             elif position2 == "L":
                 capture = params2
@@ -202,17 +196,12 @@ def get_cap_vid( NOW, seconds_duration, interval, path_capture, filename_video, 
             # Define the resolution we want for the pictures.
             cap_c.set(3, width) # capture
             cap_c.set(4, height) # capture
-
+            
             print ('Picture taken at: ' , datetime.now())
 
                     # Set focus, brightness, contrast
                     
-            try:
-                cap_c.set(cv2.CAP_PROP_FOCUS, capture[2])
-    
-            except OSError:
-                pass 
-                
+            cap_c.set(cv2.CAP_PROP_FOCUS, capture[2])
             cap_c.set(cv2.CAP_PROP_BRIGHTNESS, capture[3])
             cap_c.set(cv2.CAP_PROP_CONTRAST, capture[4])
             
@@ -223,7 +212,7 @@ def get_cap_vid( NOW, seconds_duration, interval, path_capture, filename_video, 
 
                 # Capture frame-by-frame
             ret_c, frame_c = cap_c.read()
-            cv2.putText(frame_c,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_c , font, fontsize ,(255,255,255),2) 
+            cv2.putText(frame_c,datetime.now().strftime("%d-%m-%y_%H-%M-%S"), position_c , font, fontsize ,(255,255,255),2)
 
                 # Display the resulting frame
             cv2.imshow('Pictures', frame_c)

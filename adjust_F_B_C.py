@@ -13,9 +13,11 @@ import os
 #This script contains a function that is called when  using our devices.
 
 
-def Auto(dev, path, p, width = 1280, height = 720): # Never give pos a value!
-
+def Auto(dev, path, p, width = 1024, height = 768): # Never give pos a value!
+    
     path_to_params = "%s/params/F_B_C.txt" %(path)
+    print("A")
+    print(path_to_params)
 
     val = False
     cap  = cv2.VideoCapture(dev)
@@ -27,6 +29,7 @@ def Auto(dev, path, p, width = 1280, height = 720): # Never give pos a value!
         cap.set(cv2.CAP_PROP_AUTOFOCUS, 1)
     
     except OSError:
+        print("autofocus pb")
         pass 
 
 
@@ -77,14 +80,14 @@ def Auto(dev, path, p, width = 1280, height = 720): # Never give pos a value!
 
     cv2.destroyAllWindows()
     
-def Default(dev, path, p, width = 1280, height = 720):
+def Default(dev, path, p, width = 1024, height = 768):
     
     path_to_params = "%s/params/F_B_C.txt" %(path)
 
     # Default parameters
-    f = 0.7
-    b = 0.7
-    c = 0.7
+    f = 0.2
+    b = 0.5
+    c = 0.5
 
     val = False
     
@@ -154,7 +157,7 @@ def Default(dev, path, p, width = 1280, height = 720):
     cv2.destroyAllWindows()
     
 
-def User_params(dev, path, p, width = 1280, height = 720):
+def User_params(dev, path, p, width = 1024, height = 768):
     
     path_to_params = "%s/params/F_B_C.txt" %(path)
 
@@ -182,64 +185,53 @@ def User_params(dev, path, p, width = 1280, height = 720):
 
         ret, frame = cap.read()
 
-        try:
-            cap.set(cv2.CAP_PROP_FOCUS, f)
-    
-        except OSError:
-            pass 
-
+        cap.set(cv2.CAP_PROP_FOCUS, f)
         cap.set(cv2.CAP_PROP_BRIGHTNESS, b)
         cap.set(cv2.CAP_PROP_CONTRAST, c)
 
-        #if p == "U":
-        #    frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+        if p == "U":
+            frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
             
         cv2.imshow('User Settings', frame)
             
 
-        if val == False:
-            print ('F: ', cap.get(cv2.CAP_PROP_FOCUS),'     ', 'B: ',cap.get(cv2.CAP_PROP_BRIGHTNESS), '    ', 'C: ', cap.get(cv2.CAP_PROP_CONTRAST))     
+        if val == False: # val used to give the values only when needed
+            print ('F: ', cap.get(cv2.CAP_PROP_FOCUS),'     ', 'B: ',cap.get(cv2.CAP_PROP_BRIGHTNESS), '    ', 'C: ', cap.get(cv2.CAP_PROP_CONTRAST))                
             val = True
-            #print ('Quit: hit Q. Change parameter hit C.')
 
         elif cv2.waitKey(0) & 0xFF == ord('q'):
        
             res = input ("Are you happy with the result? (Y,N):     ")
+            
+            cap.release()
+            cv2.destroyAllWindows()
     
             if res == "Y":
+                
                 print('EXIT')
                 file = open (path_to_params, "a+")
                 file.write("%s %i %f %f %f\n" %(p, dev,f,b,c))
                 file.close()
                 print( "Parameters saved at %s" %(path_to_params))
 
-                #cap.release()
-                #cv2.destroyAllWindows()
+#                cap.release()
+#                cv2.destroyAllWindows()
                 
                 break
             
             if res == 'N':
-                cap.release()
-                cv2.destroyAllWindows()
+#                cap.release()
+#                cv2.destroyAllWindows()
 
                 User_params(dev, path, p, width, height)
-    
-        
-
-        elif cv2.waitKey(0) & 0xFF == ord('c'):
-            cap.release()
-            cv2.destroyAllWindows()
-
-            User_params(dev, path, p,  width, height)
             
 
 
     cap.release()
-
     cv2.destroyAllWindows()
     
     
-def adjust(dev, p, path, width = 1920, height = 1080):
+def adjust(dev, p, path, width = 1024, height = 768):
 
     main = input ('Do you want to set parameters? (Y(es), D(efault), A(uto) ) :    ') # When python3, change to input
     
