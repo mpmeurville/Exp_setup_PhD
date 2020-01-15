@@ -1,13 +1,14 @@
 import cv2
 #Capture video from webcam
-vid_capture = cv2.VideoCapture(0)
+vid_capture = cv2.VideoCapture(3)
 vid_cod = cv2.VideoWriter_fourcc(*'XVID')
-output = cv2.VideoWriter("/home/pi/setup/device/test/test.avi", vid_cod, 20.0, (640,480))
+output = cv2.VideoWriter("/home/marie-pierre/Documents/PhD/ants_trophallaxis/exp_setup/setup_output/tests_focus/cam_zero/test.avi", vid_cod, 20.0, (640,480))
 while(True):
      # Capture each frame of webcam video
      ret,frame = vid_capture.read()
      cv2.imshow("My cam video", frame)
      output.write(frame)
+     
      # Close and break the loop after pressing "x" key
      if cv2.waitKey(1) &0XFF == ord('q'):
          break

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 #from both_cap_vid import rescale_frame
 #from both_cap_vid import get_video_type
 from both_cap_vid import get_cap_vid
-from tls import getLight
+#from tls import getLight
 from threading import Thread
 
 
@@ -27,7 +27,8 @@ dev2 = 0
 #except OSError:
 #    pass 
 
-storage = "/media/pi/My Passport/"
+storage = "/home/marie-pierre/Documents/PhD/ants_trophallaxis/exp_setup/setup_output/"
+#storage = "/media/pi/My Passport/"
 #storage = "/home/pi/setup/device/test/"
 
 

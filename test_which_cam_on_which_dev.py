@@ -5,12 +5,13 @@ from datetime import datetime, date, time, timedelta
 import time
     
 
+### In the terminal, run ls -ltrh /dev/video* to have an idea of detected cameras and their dev. 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(5)
 
 
 cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.8)
+cap.set(cv2.CAP_PROP_BRIGHTNESS, 0)
 cap.set(cv2.CAP_PROP_CONTRAST,0)
 
 

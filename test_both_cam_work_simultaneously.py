@@ -7,15 +7,15 @@ import time
 
 
 cap1 = cv2.VideoCapture(2)
-cap2 = cv2.VideoCapture(0)
+cap2 = cv2.VideoCapture(4)
 
-cap1.set(cv2.CAP_PROP_AUTOFOCUS, 0.8)
-cap1.set(cv2.CAP_PROP_BRIGHTNESS, 0.4)
-cap1.set(cv2.CAP_PROP_CONTRAST,0.5)
+cap1.set(cv2.CAP_PROP_AUTOFOCUS, 20)
+cap1.set(cv2.CAP_PROP_BRIGHTNESS, 50)
+cap1.set(cv2.CAP_PROP_CONTRAST, 50)
 
-cap2.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-cap2.set(cv2.CAP_PROP_BRIGHTNESS, 0.4)
-cap2.set(cv2.CAP_PROP_CONTRAST,0)
+cap2.set(cv2.CAP_PROP_AUTOFOCUS, 50)
+cap2.set(cv2.CAP_PROP_BRIGHTNESS, 50)
+cap2.set(cv2.CAP_PROP_CONTRAST,50)
 
 
 vid_cod = cv2.VideoWriter_fourcc(*'XVID')
