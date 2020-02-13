@@ -5,15 +5,19 @@ from datetime import datetime, date, time, timedelta
 import time
     
 
-### In the terminal, run ls -ltrh /dev/video* to have an idea of detected cameras and their dev. 
+### In the terminal, run v4l2-ctl --list-devices  or run ls -ltrh /dev/video* to have an idea of detected cameras and their dev. 
 
-cap = cv2.VideoCapture(5)
+cap = cv2.VideoCapture(0)
+
+#cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+
+cap.set(cv2.CAP_PROP_BRIGHTNESS, 150)
+cap.set(cv2.CAP_PROP_CONTRAST,80)
+cap.set(cv2.CAP_PROP_AUTOFOCUS, 1)
 
 
-cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-cap.set(cv2.CAP_PROP_BRIGHTNESS, 0)
-cap.set(cv2.CAP_PROP_CONTRAST,0)
 
+print(cap.get(cv2.CAP_PROP_AUTOFOCUS))
 
 vid_cod = cv2.VideoWriter_fourcc(*'XVID')
 

@@ -103,7 +103,7 @@ def rescale_frame(frame, percent=75):
 #        return VIDEO_TYPE['avi']
 
 
-def get_cap_vid( NOW, seconds_duration, interval, path_capture, filename_video, percent, file_params = "/media/pi/My Passport/params/F_B_C.txt", my_res = '720p', width = 1920, height = 1080 ,frame_per_seconds = 24.0):
+def get_cap_vid( NOW, seconds_duration, interval, path_capture, filename_video, percent, file_params = "/media/pi/My Passport/params/F_B_C.txt", my_res = '720p', width = 1920, height = 1080 ,frame_per_seconds = 20.0):
     
     finish_time = NOW + timedelta(seconds=seconds_duration) # Do not touch
     
@@ -111,12 +111,12 @@ def get_cap_vid( NOW, seconds_duration, interval, path_capture, filename_video, 
         # Extract parameters from previous settings
     
     f = open(file_params, "r") # Get parameters that we recorded in the F_B_C.txt file
-    lines = f.readlines()[-2:]
+    lines = f.readlines()[-3:]
     f.close()
     split1 = lines[0].strip().split(' ')
     split2 = lines[1].strip().split(' ')
-    position1, dev1, focus1, brightness1, contrast1 = split1
-    position2, dev2, focus2, brightness2, contrast2 = split2
+    position1, dev1, focus1, brightness1, contrast1 , saturation1 = split1
+    position2, dev2, focus2, brightness2, contrast2 , saturation2 = split2
     
     dev1 = int(dev1)
     dev2 = int(dev2)
@@ -128,9 +128,12 @@ def get_cap_vid( NOW, seconds_duration, interval, path_capture, filename_video, 
     contrast1 = float(contrast1)
     contrast2 = float(contrast2)
     
+    saturation1 = int(saturation1)
+    saturation2 = int(saturation2)
+    
 
-    params1 = [position1, dev1, focus1, brightness1, contrast1]
-    params2 = [position2, dev2, focus2, brightness2, contrast2]
+    params1 = [position1, dev1, focus1, brightness1, contrast1, saturation1]
+    params2 = [position2, dev2, focus2, brightness2, contrast2, saturation2]
     
     if position1 == "U":
         video = params1
@@ -167,11 +170,13 @@ def get_cap_vid( NOW, seconds_duration, interval, path_capture, filename_video, 
         cap_v.set(cv2.CAP_PROP_FOCUS, video[2]) # This line creates the VIDIOC_S_CTRL incomplete multibyte error.
         cap_v.set(cv2.CAP_PROP_BRIGHTNESS, video[3])
         cap_v.set(cv2.CAP_PROP_CONTRAST, video[4])
+        cap_v.set(cv2.CAP_PROP_SATURATION, video[5])
+
 
         if (ret_v):
 
             # The frame is in grays
-            frame_v = cv2.cvtColor(frame_v,cv2.COLOR_BGR2GRAY)
+            #frame_v = cv2.cvtColor(frame_v,cv2.COLOR_BGR2GRAY)
             
             # Adding the time on each frame
 
@@ -204,11 +209,13 @@ def get_cap_vid( NOW, seconds_duration, interval, path_capture, filename_video, 
             cap_c.set(cv2.CAP_PROP_FOCUS, capture[2])
             cap_c.set(cv2.CAP_PROP_BRIGHTNESS, capture[3])
             cap_c.set(cv2.CAP_PROP_CONTRAST, capture[4])
+            cap_c.set(cv2.CAP_PROP_SATURATION, capture[5])
+
             
-            print (cap_v.get(cv2.CAP_PROP_FOCUS), " " , cap_v.get(cv2.CAP_PROP_BRIGHTNESS), " ", cap_v.get(cv2.CAP_PROP_CONTRAST))
+            print (cap_v.get(cv2.CAP_PROP_FOCUS), " " , cap_v.get(cv2.CAP_PROP_BRIGHTNESS), " ", cap_v.get(cv2.CAP_PROP_CONTRAST), " ", cap_v.get(cv2.CAP_PROP_SATURATION))
 
 
-            print (cap_c.get(cv2.CAP_PROP_FOCUS), " " , cap_c.get(cv2.CAP_PROP_BRIGHTNESS), " ", cap_c.get(cv2.CAP_PROP_CONTRAST))
+            print (cap_c.get(cv2.CAP_PROP_FOCUS), " " , cap_c.get(cv2.CAP_PROP_BRIGHTNESS), " ", cap_c.get(cv2.CAP_PROP_CONTRAST), " ", cap_c.get(cv2.CAP_PROP_SATURATION))
 
                 # Capture frame-by-frame
             ret_c, frame_c = cap_c.read()
